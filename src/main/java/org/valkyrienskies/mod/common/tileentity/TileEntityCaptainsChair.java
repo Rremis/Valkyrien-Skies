@@ -91,15 +91,15 @@ public class TileEntityCaptainsChair extends TileEntityPilotableImpl {
 
         pilotRotationMatrix.rotateXYZ(Math.toRadians(pilotPitch), Math.toRadians(pilotYaw), Math.toRadians(pilotRoll));
 
-        Vector3d playerDirection = new Vector3d(1, 0, 0);
+        Vector3d playerDirection = new Vector3d(0.2, 0, 0);
 
         pilotRotationMatrix.transform(playerDirection);
 
         Vector3d idealAngularDirection = new Vector3d();
         Vector3d idealLinearVelocity = new Vector3d();
 
-        Vector3d shipUp = new Vector3d(0, 1, 0);
-        Vector3d shipUpPosIdeal = new Vector3d(0, 1, 0);
+        Vector3d shipUp = new Vector3d(0, 0.8, 0);
+        Vector3d shipUpPosIdeal = new Vector3d(0, 0.8, 0);
 
         if (message.airshipForward_KeyDown) {
             idealLinearVelocity.add(playerDirection);
