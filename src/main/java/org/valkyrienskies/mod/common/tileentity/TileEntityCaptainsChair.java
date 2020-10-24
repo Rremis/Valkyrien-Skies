@@ -1,8 +1,9 @@
 package org.valkyrienskies.mod.common.tileentity;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.math.BlockPos;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.joml.AxisAngle4d;
 import org.joml.Matrix3d;
 import org.joml.Vector3d;
@@ -11,10 +12,16 @@ import org.valkyrienskies.mod.common.block.BlockCaptainsChair;
 import org.valkyrienskies.mod.common.piloting.ControllerInputType;
 import org.valkyrienskies.mod.common.piloting.PilotControlsMessage;
 import org.valkyrienskies.mod.common.ships.ship_world.PhysicsObject;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.math.BlockPos;
 import valkyrienwarfare.api.TransformType;
 
 public class TileEntityCaptainsChair extends TileEntityPilotableImpl {
 
+	private static HashMap<PhysicsObject, Timer> physicsTimer = new HashMap<>();
+	
     @Override
     public void processControlMessage(PilotControlsMessage message, EntityPlayerMP sender) {
         IBlockState blockState = getWorld().getBlockState(getPos());
@@ -38,17 +45,33 @@ public class TileEntityCaptainsChair extends TileEntityPilotableImpl {
     public boolean setClientPilotingEntireShip() {
         return true;
     }
-
+    
     @Override
     public final void onStartTileUsage() {
-        getParentPhysicsEntity().getPhysicsCalculations().actAsArchimedes = true;
+    	PhysicsObject po = getParentPhysicsEntity();
+    	
+    	if(physicsTimer.containsKey(po)) {
+    		physicsTimer.get(po).cancel();
+    		physicsTimer.remove(po);
+    	}
+    	po.setPhysicsEnabled(true);
     }
-
+    
     @Override
     public final void onStopTileUsage() {
         // Sanity check, sometimes we can be piloting something that's been destroyed so there's nothing to change physics on.
         if (getParentPhysicsEntity() != null) {
-            getParentPhysicsEntity().getPhysicsCalculations().actAsArchimedes = false;
+        	PhysicsObject po = getParentPhysicsEntity();
+        	
+        	Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                	po.setPhysicsEnabled(false);
+                	physicsTimer.remove(po);
+                }
+            }, 5*60*1000); // 60 seconds * 5
+            physicsTimer.put(po, timer);
         }
     }
 
@@ -72,12 +95,7 @@ public class TileEntityCaptainsChair extends TileEntityPilotableImpl {
 
         pilotRotationMatrix.transform(playerDirection);
 
-        Vector3d upDirection = new Vector3d(0, 1, 0);
-
-        Vector3d downDirection = new Vector3d(0, -1, 0);
-
         Vector3d idealAngularDirection = new Vector3d();
-
         Vector3d idealLinearVelocity = new Vector3d();
 
         Vector3d shipUp = new Vector3d(0, 1, 0);
@@ -95,22 +113,14 @@ public class TileEntityCaptainsChair extends TileEntityPilotableImpl {
         controlledShip.getShipTransformationManager().getCurrentTickTransform()
             .transformDirection(shipUp, TransformType.SUBSPACE_TO_GLOBAL);
 
-        if (message.airshipUp_KeyDown) {
-            idealLinearVelocity.add(upDirection.mul(.5, new Vector3d()));
-        }
-        if (message.airshipDown_KeyDown) {
-            idealLinearVelocity.add(downDirection.mul(.5, new Vector3d()));
-        }
-
         double sidePitch = 0;
-
         if (message.airshipRight_KeyDown) {
             idealAngularDirection.sub(shipUp);
-            sidePitch -= 10;
+            sidePitch -= 1D;
         }
         if (message.airshipLeft_KeyDown) {
             idealAngularDirection.add(shipUp);
-            sidePitch += 10;
+            sidePitch += 1D;
         }
 
         Vector3d sidesRotationAxis = new Vector3d(playerDirection);

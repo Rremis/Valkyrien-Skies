@@ -1,5 +1,10 @@
 package org.valkyrienskies.mod.client;
 
+import org.lwjgl.input.Keyboard;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import org.valkyrienskies.mod.common.network.MessagePlayerStoppedPiloting;
+import org.valkyrienskies.mod.common.piloting.IShipPilotClient;
+
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -8,18 +13,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Keyboard;
-import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
-import org.valkyrienskies.mod.common.network.MessagePlayerStoppedPiloting;
-import org.valkyrienskies.mod.common.piloting.IShipPilotClient;
 
+@SuppressWarnings("deprecation")
 public class VSKeyHandler {
 
     private static final String VS_KEYBIND_IDENTIFIER = "Valkyrien Skies";
 
     // Movement Keys
-    public static final KeyBinding airshipUp = new KeyBinding("Airship Up", Keyboard.KEY_SPACE,
-        VS_KEYBIND_IDENTIFIER);
     public static final KeyBinding airshipForward = new KeyBinding("Airship Forward",
         Keyboard.KEY_W, VS_KEYBIND_IDENTIFIER);
     public static final KeyBinding airshipBackward = new KeyBinding("Airship Backward",
@@ -28,8 +28,6 @@ public class VSKeyHandler {
         VS_KEYBIND_IDENTIFIER);
     public static final KeyBinding airshipRight = new KeyBinding("Airship Turn Right",
         Keyboard.KEY_D, VS_KEYBIND_IDENTIFIER);
-    public static final KeyBinding airshipDown = new KeyBinding("Airship Down", Keyboard.KEY_X,
-        VS_KEYBIND_IDENTIFIER);
     public static final KeyBinding airshipSpriting = new KeyBinding("Airship Sprinting",
         Keyboard.KEY_LCONTROL, VS_KEYBIND_IDENTIFIER);
 
@@ -53,12 +51,10 @@ public class VSKeyHandler {
         Keyboard.KEY_LSHIFT, VS_KEYBIND_IDENTIFIER);
 
     static {
-        ClientRegistry.registerKeyBinding(airshipUp);
         ClientRegistry.registerKeyBinding(airshipForward);
         ClientRegistry.registerKeyBinding(airshipBackward);
         ClientRegistry.registerKeyBinding(airshipLeft);
         ClientRegistry.registerKeyBinding(airshipRight);
-        ClientRegistry.registerKeyBinding(airshipDown);
         ClientRegistry.registerKeyBinding(airshipSpriting);
         ClientRegistry.registerKeyBinding(dismountKey);
 
@@ -71,7 +67,7 @@ public class VSKeyHandler {
         ClientRegistry.registerKeyBinding(airshipStop_Zepplin);
     }
 
-    @SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void playerTick(PlayerTickEvent event) {
         if (event.side == Side.SERVER) {
