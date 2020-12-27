@@ -76,6 +76,12 @@ public class EventsCommon {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onEntityJoinWorldEvent(EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
+        
+        if(event.getEntity() instanceof EntityPlayer) {
+            EntityPlayer player = (EntityPlayer) event.getEntity();
+		    if(!event.getEntity().world.isRemote) 
+			    player.sendMessage(new TextComponentString("Mod by One Piece : GoldenAge - Discord: https://discord.gg/VJpUWyg"));
+        }
 
         World world = entity.world;
         BlockPos posAt = new BlockPos(entity);
